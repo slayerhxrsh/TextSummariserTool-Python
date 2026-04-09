@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/app.py"
+    }
+  ],
+  "functions": {
+    "app.py": {
+      "memory": 2048,
+      "maxDuration": 300
+    }
+  },
+  "env": {
+    "VERCEL": "1",
+    "ENABLE_ABSTRACTIVE": "0"
+  }
+}
