@@ -1,19 +1,12 @@
 {
-  "version": 2,
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/api/index.py"
-    }
-  ],
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "flask",
+  "fluid": true,
   "functions": {
-    "api/index.py": {
+    "app.py": {
       "memory": 1024,
-      "maxDuration": 60
+      "maxDuration": 60,
+      "excludeFiles": "{.git/**,.venv/**,venv/**,__pycache__/**,api/**}"
     }
-  },
-  "env": {
-    "VERCEL": "1",
-    "ENABLE_ABSTRACTIVE": "0"
   }
 }

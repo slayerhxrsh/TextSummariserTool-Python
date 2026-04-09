@@ -6,6 +6,8 @@ import re
 import zipfile
 from typing import Iterable, List
 
+from nltk.stem import PorterStemmer
+
 # Lazy imports moved inside methods to support lightweight Vercel deployment
 # import spacy
 # from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
@@ -13,7 +15,6 @@ from typing import Iterable, List
 from .utils import normalize_whitespace
 
 
-FALLBACK_STOPWORDS = None  # Loaded lazily
 WORD_PATTERN = re.compile(r"[A-Za-z]+(?:'[A-Za-z]+)?")
 SENTENCE_SPLIT_PATTERN = re.compile(r"(?<=[.!?])\s+")
 
