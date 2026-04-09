@@ -5,8 +5,9 @@ from __future__ import annotations
 from dataclasses import asdict
 from typing import List
 
-import torch
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+# Lazy imports moved inside class/methods to support lightweight Vercel deployment
+# import torch
+# from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 from .config import AbstractiveConfig
 from .preprocessing import TextPreprocessor
@@ -21,11 +22,16 @@ class BartSummarizer:
     def __init__(self, preprocessor: TextPreprocessor, config: AbstractiveConfig) -> None:
         self.preprocessor = preprocessor
         self.config = config
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        try:
+            import torch
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        except ImportError:
+            self.device = "cpu"
 
     @property
     def tokenizer(self):
         if self.config.model_name not in self._shared_tokenizers:
+            from transformers import AutoTokenizer
             self._shared_tokenizers[self.config.model_name] = AutoTokenizer.from_pretrained(self.config.model_name)
         return self._shared_tokenizers[self.config.model_name]
 
@@ -33,6 +39,8 @@ class BartSummarizer:
     def model(self):
         cache_key = (self.config.model_name, self.device)
         if cache_key not in self._shared_models:
+            import torch
+            from transformers import AutoModelForSeq2SeqLM
             model = AutoModelForSeq2SeqLM.from_pretrained(self.config.model_name)
             model.to(self.device)
             model.eval()
@@ -85,6 +93,7 @@ class BartSummarizer:
         )
         encoded = {key: value.to(self.device) for key, value in encoded.items()}
 
+        import torch
         with torch.no_grad():
             generated_ids = self.model.generate(
                 **encoded,

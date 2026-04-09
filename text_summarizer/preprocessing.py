@@ -6,14 +6,14 @@ import re
 import zipfile
 from typing import Iterable, List
 
-import spacy
-from nltk.stem import PorterStemmer
-from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
+# Lazy imports moved inside methods to support lightweight Vercel deployment
+# import spacy
+# from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
 from .utils import normalize_whitespace
 
 
-FALLBACK_STOPWORDS = set(ENGLISH_STOP_WORDS)
+FALLBACK_STOPWORDS = None  # Loaded lazily
 WORD_PATTERN = re.compile(r"[A-Za-z]+(?:'[A-Za-z]+)?")
 SENTENCE_SPLIT_PATTERN = re.compile(r"(?<=[.!?])\s+")
 
@@ -35,10 +35,10 @@ class TextPreprocessor:
         """Use NLTK stopwords when available, otherwise fall back to sklearn's list."""
         try:
             from nltk.corpus import stopwords
-
             return set(stopwords.words("english"))
-        except (LookupError, OSError, zipfile.BadZipFile):
-            return FALLBACK_STOPWORDS
+        except (LookupError, OSError, zipfile.BadZipFile, ImportError):
+            from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
+            return set(ENGLISH_STOP_WORDS)
 
     @staticmethod
     def _load_spacy_model():
@@ -47,8 +47,9 @@ class TextPreprocessor:
             return TextPreprocessor._shared_nlp
 
         try:
+            import spacy
             TextPreprocessor._shared_nlp = spacy.load("en_core_web_sm", disable=["ner", "parser"])
-        except OSError:
+        except (OSError, ImportError):
             TextPreprocessor._shared_nlp = None
 
         return TextPreprocessor._shared_nlp
