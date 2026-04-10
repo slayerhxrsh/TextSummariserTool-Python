@@ -1,12 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "flask",
-  "fluid": true,
-  "functions": {
-    "app.py": {
-      "memory": 1024,
-      "maxDuration": 60,
-      "excludeFiles": "{.git/**,.venv/**,venv/**,__pycache__/**,api/**}"
-    }
-  }
+  "fluid": true
 }
